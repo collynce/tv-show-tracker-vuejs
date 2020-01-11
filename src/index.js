@@ -5,9 +5,7 @@ import store from './store/index'
 import router from './router/index'
 import './firebase/firebase'
 
-require
-
-('./js/components/components');
+require('./js/components/components');
 
 
 let app;
