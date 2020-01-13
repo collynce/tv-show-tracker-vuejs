@@ -2,14 +2,24 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as firebase from "firebase";
 import router from "../router";
+import {vuexfireMutations} from 'vuexfire'
+import {db} from "../firebase/firestore";
+import users from './config/users'
+import conversations from './config/conversations'
 
 Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         user: null,
         isAuthenticated: false,
+        db: db
+    },
+    modules: {
+        users,
+        conversations
     },
     mutations: {
+        ...vuexfireMutations,
         setUser(state, payload) {
             state.user = payload;
         },
@@ -18,6 +28,11 @@ export default new Vuex.Store({
         }
     },
     actions: {
+
+        // bindTodos: firestoreAction(({bindFirestoreRef}) => {
+        //     // return the promise returned by `bindFirestoreRef`
+        //     return bindFirestoreRef('todos', db.collection('todos'))
+        // }),
         userLogin({commit}, {email, password}) {
             firebase
                 .auth()
@@ -76,5 +91,5 @@ export default new Vuex.Store({
                 });
         },
     },
-    modules: {}
+
 })

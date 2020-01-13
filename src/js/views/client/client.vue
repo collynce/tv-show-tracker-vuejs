@@ -31,7 +31,8 @@
         data() {
             return {
                 isLoggedIn: false,
-                currentUser: false
+                currentUser: false,
+                loading: true
             }
         },
         created() {
@@ -40,6 +41,7 @@
                 this.currentUser = firebase.auth().currentUser.email;
                 console.log(this.currentUser);
             }
+            this.get();
         },
         methods: {
             logout() {
@@ -49,6 +51,10 @@
                     .then(() => {
                         this.$router.go({path: this.$router.path});
                     });
+            },
+            get() {
+                this.loading = true;
+                this.$store.dispatch('conversations/get').then(() => this.loading = false)
             }
         }
     }
