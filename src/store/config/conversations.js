@@ -9,7 +9,6 @@ const getters = {
     availableShows(state) {
         return Object.entries(state.all).map((i) => {
             return i
-
         });
     },
 };

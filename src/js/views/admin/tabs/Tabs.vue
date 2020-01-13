@@ -1,10 +1,8 @@
 <template>
     <v-app>
-        {{shows}}
-        <p v-for="show in shows">{{show}}</p>
+        {{conversations}}
         <v-data-table
                 :headers="headers"
-                :items="shows"
                 sort-by="calories"
                 class="elevation-1"
         >
@@ -81,6 +79,7 @@
 </template>
 <script>
     import firebase from "firebase";
+    import {mapState} from 'vuex';
 
     export default {
         data: () => ({
@@ -100,35 +99,21 @@
             ],
             desserts: [],
             editedIndex: -1,
-            editedItem: {
-                name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0,
-            },
-            defaultItem: {
-                name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0,
-            },
         }),
 
         computed: {
             formTitle() {
                 return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
             },
-            mapState: {
-                shows: state => state.conversations.all,
-            }
+            ...mapState(['conversations', 'all'])
         },
         watch: {
             dialog(val) {
                 val || this.close()
-            },
-        },
+            }
+            ,
+        }
+        ,
 
         created() {
             if (firebase.auth().currentUser) {
@@ -137,41 +122,27 @@
                 console.log(this.currentUser);
             }
             this.initialize();
-        },
+
+        }
+        ,
 
         methods: {
             initialize() {
                 this.$store.dispatch('users/get')
                 this.loading = true;
                 this.$store.dispatch('conversations/get')
-            },
-            // editItem(item) {
-            //     this.editedIndex = this.desserts.indexOf(item)
-            //     this.editedItem = Object.assign({}, item)
-            //     this.dialog = true
-            // },
-            //
-            // deleteItem(item) {
-            //     const index = this.shows.indexOf(item)
-            //     confirm('Are you sure you want to delete this item?') && this.shows.splice(index, 1)
-            // },
 
+            }
+            ,
             close() {
                 this.dialog = false
                 setTimeout(() => {
                     this.editedItem = Object.assign({}, this.defaultItem)
                     this.editedIndex = -1
                 }, 300)
-            },
-
-            // save() {
-            //     if (this.editedIndex > -1) {
-            //         Object.assign(this.desserts[this.editedIndex], this.editedItem)
-            //     } else {
-            //         this.desserts.push(this.editedItem)
-            //     }
-            //     this.close()
-            // },
-        },
+            }
+            ,
+        }
+        ,
     }
 </script>
