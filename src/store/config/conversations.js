@@ -1,22 +1,21 @@
 import uuidv4 from 'uuid/v4'
 
 const state = {
-    all: {},
+    all: [],
     allIds: [],
     allMsgIds: []
 };
 const getters = {
     availableShows(state) {
-        return Object.entries(state.all).map((i) => {
-            return i
-        });
+        return state.all;
     },
 };
 const mutations = {
     SET_CONVERSATION(state, {conversation}) {
         const data = conversation.data();
 
-        state.all = {...state.all, [conversation.id]: data.info};
+        // state.all = {...state.all, [conversation.id]: data.info};
+        state.all.push(data.info);
 
         state.allIds.push(conversation.id)
     },

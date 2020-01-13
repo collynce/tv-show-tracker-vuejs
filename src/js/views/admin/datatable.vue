@@ -1,14 +1,14 @@
 <template>
     <v-app>
-        {{conversations}}
+        <!--        {{conversations}}-->
         <v-data-table
                 :headers="headers"
-                :items="conversations.id"
-                sort-by="calories"
+                :items="conversations"
+                sort-by="id"
                 class="elevation-1"
         >
             <template v-slot:top>
-                <v-toolbar flat color="white">
+                <v-toolbar flat>
                     <v-toolbar-title>My CRUD</v-toolbar-title>
                     <v-divider
                             class="mx-4"
@@ -92,10 +92,7 @@
                     sortable: false,
                     value: 'name',
                 },
-                {text: 'Genre', value: 'genre'},
-                {text: 'Ratings', value: 'ratings'},
-                {text: 'Reviews', value: 'reviews'},
-                {text: 'Subscriptions', value: 'subscriptions'},
+                {text: 'Genre', value: 'blub'},
                 {text: 'Actions', value: 'action', sortable: false},
             ],
             desserts: [],
@@ -130,7 +127,7 @@
             },
         },
 
-        created() {
+        mounted() {
             if (firebase.auth().currentUser) {
                 this.isLoggedIn = true;
                 this.currentUser = firebase.auth().currentUser.email;
