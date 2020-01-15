@@ -7,15 +7,19 @@ const state = {
 };
 const getters = {
     availableShows(state) {
-        return state.all;
+        // return Object.entries(state.all).map((i) => {
+        //     return i.map((j) => {
+        //         return j
+        //     })
+        // })
+        return state.all
+
     },
 };
 const mutations = {
     SET_CONVERSATION(state, {conversation}) {
         const data = conversation.data();
-
-        // state.all = {...state.all, [conversation.id]: data.info};
-        state.all.push(data.info);
+        state.all = [...state.all, {[conversation.id]: data}];
 
         state.allIds.push(conversation.id)
     },
@@ -38,21 +42,39 @@ const actions = {
             .then(res => console.log('Message sent.'))
             .catch(err => console.log('Error', err))
     },
+    delete({rootState}) {
+        return rootState.db.collection('shows').delete();
 
-    async seed({rootState, commit}, {blub, name}) {
-        let convoRef = rootState.db.collection('shows');
-        await convoRef.add({
-            info: {
-                id: uuidv4(),
-                blub: blub,
-                name: name
-            }
-        })
     },
-    async get({commit, rootState}) {
+    // async seed({rootState, commit}, {blub, name}) {
+    //     let convoRef = rootState.db.collection('shows');
+    //     await convoRef.add({
+    //         '.key': uuidv4(),
+    //         'blub': blub,
+    //         'name': name
+    //     })
+    // },
+    async seed({commit, rootState}, {blub, name}) {
+        rootState.db.collection('shows').add({
+            id: uuidv4(),
+            blub: blub,
+            name: name
+        })
+            .then(docRef => {
+                console.log('Document written with ID: ', docRef.id);
+                // this.$router.push(`/${slug}/success`)
+            })
+            .catch(function (error) {
+                console.error('Error adding document: ', error)
+            })
+    },
+
+    //
+    get({commit, rootState}) {
         let convoRef = rootState.db.collection('shows');
-        let convos = await convoRef.get();
-        convos.forEach(conversation => commit('SET_CONVERSATION', {conversation}))
+        return convoRef.get().then((convo) => {
+            return convo.forEach((conversation) => commit('SET_CONVERSATION', {conversation}));
+        });
     }
 };
 

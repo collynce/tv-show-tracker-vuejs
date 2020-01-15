@@ -3,11 +3,11 @@ import VueRouter from 'vue-router'
 import Home from '../js/views/home'
 import login from "../js/views/auth/login";
 import register from "../js/views/auth/register";
-import * as firebase from "firebase";
 import client from "../js/views/client/client";
 import admin from "../js/views/admin/admin";
 import dashboard from "../js/views/admin/dashboard";
 import Tabs from "../js/views/admin/tabs/Tabs";
+import * as firebase from "firebase";
 
 Vue.use(VueRouter);
 

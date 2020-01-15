@@ -18,7 +18,13 @@
                 <v-btn outlined @click="logout" data-cy="logoutSubmitBtn">Logout</v-btn>
             </v-toolbar>
         </v-card>
-        <p>Welcome {{conversations}}</p>
+        <v-text-field
+                v-model="search"
+                label="Search..."
+        />
+        <ul>
+            <li v-for="item in items"> {{item.name}}</li>
+        </ul>
         <p>Admin page</p>
         <div v-if="loading">
             <div class="text-center">
@@ -56,27 +62,21 @@
                 Validate
             </v-btn>
         </v-form>
-        <ul v-if="!loading">
-            <li v-for="message in conversations"
-                :key="message.id">
-                {{message}}
-            </li>
-        </ul>
-
     </v-app>
 </template>
 
 <script>
     import InitializeData from './InitializeData.vue'
-    import {mapState} from "vuex";
     import firebase from "firebase";
     import loader from "./loader";
+    import uuidv4 from "uuid/v4";
 
     export default {
         name: 'ConversationContainer',
         data() {
             return {
                 newMessageText: '',
+                search: '',
                 blub: '',
                 isLoggedIn: false,
                 currentUser: false,
@@ -93,10 +93,16 @@
             InitializeData,
             loader
         },
-        computed: mapState({
-            conversations: state => state.conversations.all,
-            convoIds: state => state.conversations.allIds,
-        }),
+        // computed: mapState([
+        //     'items'
+        // ]),
+        computed: {
+            items() {
+                return this.$store.getters.getItems.filter(show => {
+                    return show.name.toLowerCase().includes(this.search.toLowerCase())
+                })
+            }
+        },
         created() {
             if (firebase.auth().currentUser) {
                 this.isLoggedIn = true;
@@ -104,7 +110,6 @@
                 console.log(this.currentUser);
             }
             this.get()
-
         },
         methods: {
             send() {
@@ -116,19 +121,21 @@
                 })
             },
             get() {
-                this.$store.dispatch('users/get')
                 this.loading = true;
-                this.$store.dispatch('conversations/get').then(() => this.loading = false)
+                this.$store.dispatch('setItems').then(() => this.loading = false);
             },
             validate() {
                 if (this.$refs.form.validate()) {
                     this.loading = true;
-                    this.$store.dispatch('conversations/seed', {
+                    this.$store.dispatch('seed', {
+                        id: uuidv4(),
                         blub: this.blub,
                         name: this.name
                     }).then(() => this.loading = false)
-
                 }
+            },
+            deleteItem() {
+                this.$store.dispatch('conversations/delete')
             },
             logout() {
                 firebase

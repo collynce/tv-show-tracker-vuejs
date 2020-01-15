@@ -3,7 +3,7 @@
         <loader v-show="loading"/>
         <v-data-table
                 :headers="headers"
-                :items="shows"
+                :items="items"
                 sort-by="id"
                 class="elevation-1"
         >
@@ -57,7 +57,7 @@
                 </v-icon>
                 <v-icon
                         small
-                        @click="deleteItem(item)"
+                        @click="deleteItem(item.id)"
                 >
                     delete
                 </v-icon>
@@ -69,7 +69,6 @@
     </v-app>
 </template>
 <script>
-    import {mapState} from "vuex";
     import firebase from "firebase";
     import loader from "../loader";
 
@@ -90,21 +89,15 @@
                 {text: 'Genre', value: 'blub'},
                 {text: 'Actions', value: 'action', sortable: false},
             ],
-            desserts: [],
+            shows: [],
             editedIndex: -1,
             editedItem: {
                 name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0,
+                blub: ''
             },
             defaultItem: {
                 name: '',
-                calories: 0,
-                fat: 0,
-                carbs: 0,
-                protein: 0,
+                blub: ''
             },
         }),
 
@@ -112,11 +105,8 @@
             formTitle() {
                 return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
             },
-            ...mapState({
-                conversations: state => state.conversations.all,
-            }),
-            shows() {
-                return this.$store.getters['conversations/availableShows']
+            items() {
+                return this.$store.getters.getItems
             }
         },
         watch: {
@@ -125,30 +115,33 @@
             },
         },
 
-        mounted() {
+        beforeMount() {
             if (firebase.auth().currentUser) {
                 this.isLoggedIn = true;
                 this.currentUser = firebase.auth().currentUser.email;
                 console.log(this.currentUser);
             }
-            this.initialize();
+            this.loading = true;
+            this.$store.dispatch('setItems').then(() => this.loading = false)
         },
 
         methods: {
             initialize() {
-                this.$store.dispatch('users/get')
-                this.loading = true;
-                this.$store.dispatch('conversations/get').then(() => this.loading = false)
+                // this.loading = true;
+                this.$store.dispatch('setItems')
+
             },
             editItem(item) {
-                this.editedIndex = this.desserts.indexOf(item);
+                this.editedIndex = this.shows.indexOf(item);
                 this.editedItem = Object.assign({}, item);
                 this.dialog = true
             },
 
-            deleteItem(item) {
-                const index = this.desserts.indexOf(item)
-                confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+            deleteItem(id) {
+                this.loading = true;
+                confirm('Are you sure you want to delete this item?')
+                && this.$store.dispatch('deleteItems', id)
+                    .then(() => this.loading = false)
             },
 
             close() {
@@ -158,13 +151,12 @@
                     this.editedIndex = -1
                 }, 300)
             },
-
             save() {
-                if (this.editedIndex > -1) {
-                    Object.assign(this.desserts[this.editedIndex], this.editedItem)
-                } else {
-                    this.desserts.push(this.editedItem)
-                }
+                // if (this.editedIndex > -1) {
+                //     Object.assign(this.shows[this.editedIndex], this.editedItem)
+                // } else {
+                //     this.desserts.push(this.editedItem)
+                // }
                 this.close()
             },
         },

@@ -129,7 +129,7 @@
 
         mounted() {
             if (firebase.auth().currentUser) {
-                this.isLoggedIn = true;
+                // this.isLoggedIn = true;
                 this.currentUser = firebase.auth().currentUser.email;
                 console.log(this.currentUser);
             }

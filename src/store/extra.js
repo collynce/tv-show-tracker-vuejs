@@ -1,79 +1,38 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {db} from "../firebase/firestore";
 import * as firebase from "firebase";
 import router from "../router";
+import {vuexfireMutations} from 'vuexfire'
+import {db} from "../firebase/firestore";
+import users from './config/users'
+import conversations from './config/conversations'
 
 Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         user: null,
         isAuthenticated: false,
-        db: db,
-        items: []
+        db: db
     },
-    getters: {
-        getItems(state) {
-            return state.items;
-        }
+    modules: {
+        users,
+        conversations
     },
     mutations: {
+        ...vuexfireMutations,
         setUser(state, payload) {
             state.user = payload;
         },
         setIsAuthenticated(state, payload) {
             state.isAuthenticated = payload;
-        },
-        setItems(state, items) {
-            state.items = items
-        },
-        deleteItem(state, payload) {
-            const item = state.items.map(item => item.id).indexOf(payload);
-            state.items.splice(item, 1);
         }
     },
     actions: {
-        async setItems(context) {
-            let items = [];
-            await db.collection('shows').onSnapshot((snapshot) => {
-                items = [];
-                return snapshot.forEach((doc) => {
-                    let data = doc.data();
-                    items.push(data);
-                    context.commit('setItems', items);
-                });
 
-            });
-
-
-        },
-        async seed(context, payload) {
-            let coll = db.collection('shows');
-            await coll.add(payload).then(docRef => {
-                console.log('Document written with ID: ', docRef.id);
-            }).catch(function (error) {
-                console.error('Error adding document: ', error)
-            });
-        },
-        async deleteItems(context, id) {
-            console.log(id);
-            let collectionRef = db.collection('shows');
-            await collectionRef.where("id", "==", id)
-                .get()
-                .then(querySnapshot => {
-                    querySnapshot.forEach((doc) => {
-                        doc.ref.delete().then(() => {
-                            console.log("Document successfully deleted!");
-                        }).catch(function (error) {
-                            console.error("Error removing document: ", error);
-                        });
-                        context.commit('deleteItem', id);
-                    });
-                })
-                .catch(function (error) {
-                    console.log("Error getting documents: ", error);
-                });
-        },
+        // bindTodos: firestoreAction(({bindFirestoreRef}) => {
+        //     // return the promise returned by `bindFirestoreRef`
+        //     return bindFirestoreRef('todos', db.collection('todos'))
+        // }),
         userLogin({commit}, {email, password}) {
             firebase
                 .auth()
